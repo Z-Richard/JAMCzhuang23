@@ -1,4 +1,4 @@
-# JAMCzhuang23
+# JAMCzhuang24
 
 ## Data Files
 
@@ -16,7 +16,7 @@
 | month        | the month in which the precipitation episode occurs |
 | label        | '0' - rain, '1' - snow, '2' - freezing rain, '3' - ice pellets |
 
-`US_X_30_30_2.5_1.3_0.25_constrained.npy` and `US_y_30_30_2.5_1.3_0.25_constrained.npy` can be used to train the Random Forest Classifier. In particular, 
+`US_X_30_30_2.5_1.3_0.25_constrained.npy` and `US_y_30_30_2.5_1.3_0.25_constrained.npy` can be used to train the LightGBMClassifier. In particular, 
 
 | Column Number  | Description |
 | -------------  | ----------- |
@@ -33,16 +33,19 @@ We note that `30_30_2.5_1.3` means that 30000 rain events, 30000 snow events, 25
 
 ```
 import numpy as np
-from sklearn.ensemble import RandomForestClassifier
+import lightgbm as lgb
 
 X = np.load('US_X_30_30_2.5_1.3_0.25_constrained.npy')
 y = np.load('US_y_30_30_2.5_1.3_0.25_constrained.npy')
 
-clf = RandomForestClassifier(n_estimators=100, 
-                             max_depth=13, 
-                             max_features='sqrt',
-                             min_samples_split=4,
-                             min_samples_leaf=1).fit(X, y)
+clf = lgb.LGBMClassifier(num_leaves=27,
+                         learning_rate=0.05,
+                         max_depth=6,
+                         min_child_samples=18, 
+                         max_bins=300,
+                         verbosity=-1,
+                         data_sample_strategy='goss',
+                         importance_type='gain')
                              
 clf.predict(X_test)  # X_test should have a shape of (N, 34)
 ```
